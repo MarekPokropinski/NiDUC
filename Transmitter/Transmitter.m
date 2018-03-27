@@ -1,4 +1,4 @@
-classdef Transmitter
+classdef Transmitter < handle
   properties(SetAccess = protected)
     packet_size
   endproperties
@@ -51,7 +51,6 @@ classdef Transmitter
         endif
       endfor
       p=d(len+1:len+length(a)-1);
-    endfunction
-      
+    endfunction      
   end
 end
