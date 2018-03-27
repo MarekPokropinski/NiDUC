@@ -1,0 +1,2 @@
+# Generator danych pseudolosowych
+
