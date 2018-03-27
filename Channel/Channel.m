@@ -1,0 +1,3 @@
+classdef Channel < handle
+  
+end
