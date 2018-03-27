@@ -1,0 +1,3 @@
+addpath('channel');
+
+bsc = BSChannel;
