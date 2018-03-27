@@ -1,7 +1,7 @@
 addpath('channel');
 
-gec = GEChannel;
+channel = BSChannel;
 
-vec = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0];
-
-out = gec.transmit(vec);
+for i = 1 : 50
+  disp(channel.transmit(0));
+end

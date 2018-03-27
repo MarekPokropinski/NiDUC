@@ -2,10 +2,13 @@
 classdef BSChannel < handle
 
   properties
-    % Working copy of current input
-    curInput = 0;
     % Error probability
     BSCProb = 0.1;
+  end
+  
+  properties (Access = private)
+    % Working copy of current input
+    curInput = 0;
   end
 
   methods
@@ -16,12 +19,22 @@ classdef BSChannel < handle
       
       for i = 1 : length(self.curInput)
         if rand() < self.BSCProb
-          self.curInput(i) = ~self.curInput(i);
+          self.flipInputBit(i);
         end
       end
       
       o = self.curInput;
-      end
+    end
+    
+  end
+  
+  methods (Access = private)
+    
+    % Flips bit on given index in input
+    function flipInputBit(self, index)
+      self.curInput(index) = ~self.curInput(index);
+    end
+    
   end
   
 end
