@@ -1,4 +1,0 @@
-function obj = transmitter()
-
-endfunction
-  

@@ -6,6 +6,7 @@ function p = getVector(obj,size)
   endif
   
   p = randi([0 1],size,1,class="uint8");
+  #p = randi([0 1],size,1,class="logical");
 endfunction
 
   
