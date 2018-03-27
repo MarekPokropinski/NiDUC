@@ -1,5 +1,3 @@
-addpath('channel');
-
 channel = BSChannel;
 
 for i = 1 : 50
