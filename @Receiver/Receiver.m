@@ -3,7 +3,7 @@ classdef Receiver < handle
    properties (SetAccess = protected)
     packet_size
     mode
-    sr_matrix
+    final_matrix
    end
    
    methods (Access = public)
@@ -16,9 +16,8 @@ classdef Receiver < handle
 %============= stop & wait ================
    
     function ack = sw (obj, received_vector, number_size, data_begining) 
-      n=obj.packet_size;              % n - liczba bitów ca³ej ramki
       frame_number = received_vector(1:number_size);
-      data = received_vector(data_begining:n);      
+      data = received_vector(data_begining:obj.packet_size);      
       
       switch obj.mode
         case "par"
@@ -50,12 +49,12 @@ classdef Receiver < handle
 
     function ack = gbn(obj, transmited_matrix, number_size, data_begining)
 
-      n=obj.packet_size;            
+           
       for i=1:rows(transmited_matrix),    
   
-        received_vector = transmited_matrix(i, 1:n);
+        received_vector = transmited_matrix(i, 1:obj.packet_size);
         frame_number = received_vector(1:number_size);
-        data = received_vector(data_begining:n);
+        data = received_vector(data_begining:obj.packet_size);
   
        switch obj.mode
         case "par"
@@ -65,7 +64,9 @@ classdef Receiver < handle
             break;                  % wychodzê z pêtli, bo ju¿ nie bêdê pobieraæ kolejnych pakietów
           else
             ack=1;
-            display(data);
+            frame_number=num2str(frame_number);
+            frame_number=bin2dec(frame_number);
+            obj.final_matrix(frame_number,1:(obj.packet_size-data_begining+1))=data;
           endif;
       
         case "crc"
@@ -75,7 +76,9 @@ classdef Receiver < handle
             
             if(!xor(my_crc, received_crc)),  
               ack=1;
-              display(data); 
+              frame_number=num2str(frame_number);
+              frame_number=bin2dec(frame_number);
+              obj.final_matrix(frame_number,1:(obj.packet_size-data_begining+1))=data;
             else
               ack=[0, frame_number];    
               break; 
@@ -110,7 +113,7 @@ classdef Receiver < handle
           else
             frame_number=num2str(frame_number);
             frame_number=bin2dec(frame_number);
-            obj.sr_matrix(frame_number,1:(n-data_begining+1))=data;
+            obj.final_matrix(frame_number,1:(n-data_begining+1))=data;
           endif;
       
          case "crc"
@@ -121,7 +124,7 @@ classdef Receiver < handle
             if(!xor(my_crc, received_crc)),
               frame_number=num2str(frame_number);
               frame_number=bin2dec(frame_number);
-              obj.sr_matrix(frame_number,1:(n-data_begining+1))=data;
+              obj.final_matrix(frame_number,1:(n-data_begining+1))=data;
             else
               ack(1,1:number_size)=0;
               counter=counter+1;

@@ -1,0 +1,21 @@
+Jak dzia³aj¹ moje metody:
+
+Ka¿da przyjmuje trzy agrumenty:
+	- macierz (w szeczególnoœci wektor), króra w ka¿dym wierszu zawiera jedn¹ ramkê danych,
+	- liczbê mówi¹c¹, na ilu bitach jest zapisany numer danej ramki,
+	- indeks, na którym zaczynaj¹ siê dane.
+UWAGA1: ramka sk³ada siê kolejno z numeru ramki, sumy kontrolnej, danych.
+UWAGA2: w matlabie indeksujemy od 1.
+
+Metoda stop & wait:
+Przyjmuje wektor, sprawdza poprawnoœæ -> jeœli ramka jest dobra zwraca 1, jeœli z³a, zwraca 0.
+
+Metoda go back N:
+Przyjmuje macierz, sprawdza poprawnoœæ kolejnych ramek. Jeœli trafi na b³êdn¹ ramkê zwraca wektor, gdzie na pierwszej pozycji jest 0, a nastêpnie numer ramki. Jeœli wszystkie by³y poprawne zwraca 1.
+Poprawne ramki wpisuje do atrybutu final_matrix.
+
+Metoda selective repeat:
+Przyjmuje macierz, sprawdza poprawnoœæ kolejnych ramek. Jeœli trafi na b³êdn¹ ramkê, w zwracanej macierzy w pierwszym wierszu wpisuje same zera, a na kolejnych wierszach numery b³êdnych ramek. Jeœli wszystkie ramki s¹ poprawne, wpisuje 1 na pierwszym miejscu w zwracanej macierzy.
+Poprawne ramki wpisuje do atrybutu final_matrix.
+
+UWAGA3: Poprawne ramki s¹ wpisywane do atrybutu final_matrix na wierszach, których numery odpowiadaj¹ numerom ramek. Z tego powodu ka¿da wysy³ana macierz musi zawieraæ ramki ponumerowane kolejno od 1 do n. W przeciwnym razie wyst¹pi¹ b³êdy w final_matrix (np. puste wiersze wype³nione zerami)
