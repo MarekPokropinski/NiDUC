@@ -6,6 +6,10 @@ classdef Transmitter < handle
     channel
     timeout    
     state
+    
+    pack
+    time
+    
   endproperties
   
 
@@ -20,24 +24,35 @@ classdef Transmitter < handle
     
     function stop_and_wait(self,deltaTime)
       self.state
-      if strcmp(self.state , 'sending')        
+      if strcmp(self.state , 'initial')
+        self.time=0;
+        self.pack = self.data(:,1);
+        self.data=self.data(:,2:end);
+        self.state = 'sending';
+      
+      elseif strcmp(self.state , 'sending')        
         if length(self.data)==0
           self.state = 'end';
           break;
         endif
-                
-        pack = self.data(:,1);
-        for i=1:length(pack)          
-          self.channel.send(pack(i));
+        for i=1:length(self.pack)          
+          self.channel.send(self.pack(i));
         endfor
-        
-        self.data=self.data(:,2:end);        
+               
         self.state = 'wait';
+        self.time = 0;
         
         
-      elseif strcmp(self.state , 'wait')
+      elseif strcmp(self.state , 'wait')        
         if self.channel.getACK()
           self.state = 'sending';
+          self.pack = self.data(:,1);
+          self.data=self.data(:,2:end);
+        else
+          self.time=self.time+deltaTime;
+          if self.time>self.timeout
+            self.state = 'sending';
+          endif            
         endif
         
       elseif strcmp(self.state , 'end')
@@ -45,7 +60,6 @@ classdef Transmitter < handle
           self.state = 'sending';
         endif
       endif      
-      
     endfunction
     
     function init(self)
