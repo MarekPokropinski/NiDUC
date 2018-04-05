@@ -17,14 +17,14 @@ classdef Receiver < handle
 %============= stop & wait ================
    
     function ack = sw (obj, received_vector, number_size, data_begining) 
-      n=obj.packet_size;              % n - liczba bitÃ³w caÅ‚ej ramki
+      n=obj.packet_size;              % n - liczba bitów ca³ej ramki
       frame_number = received_vector(1:number_size);
       data = received_vector(data_begining:n);      
       
       if(obj.mode == "par"),
       
         if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
-          ack=0;                      % ack- odpowiedÅº; jak 1 to ok, jak 0 to Åºle
+          ack=0;                      % ack- odpowiedŸ; jak 1 to ok, jak 0 to Ÿle
         else
           ack=1;
           display(data);
@@ -52,7 +52,7 @@ classdef Receiver < handle
     function ack = gbn(obj, transmited_matrix, number_size, data_begining)
 
       n=obj.packet_size;            
-      for i=1:obj.window_size,     %window_size - liczba wysyÅ‚anych na raz pakietÃ³w
+      for i=1:obj.window_size,    
   
         received_vector = transmited_matrix(i, 1:n);
         frame_number = received_vector(1:number_size);
@@ -61,8 +61,8 @@ classdef Receiver < handle
         if(obj.mode == "par"),
       
           if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
-            ack=[0, frame_number];  % jak coÅ› jest nie tak, to wysyÅ‚am 0 i numer bÅ‚Ä™dnego pakietu
-            break;                  % wychodzÄ™ z pÄ™tli, bo juÅ¼ nie bÄ™dÄ™ pobieraÄ‡ kolejnych pakietÃ³w
+            ack=[0, frame_number];  % jak coœ jest nie tak, to wysy³am 0 i numer b³êdnego pakietu
+            break;                  % wychodzê z pêtli, bo ju¿ nie bêdê pobieraæ kolejnych pakietów
           else
             ack=1;
             display(data);
@@ -87,11 +87,57 @@ classdef Receiver < handle
       endfor;
     endfunction
     
+    %============= selective repeat ==================
+
+    function ack = sr(obj, transmited_matrix, number_size, data_begining)
+
+      ack(1)=1;
+      n=obj.packet_size;  
+      counter=1;                  %zmienna pomocnicza przy tworzeniu ack      
+      for i=1:obj.window_size,    
+  
+        received_vector = transmited_matrix(i, 1:n);
+        frame_number = received_vector(1:number_size);
+        data = received_vector(data_begining:n);
+  
+        if(obj.mode == "par"),
+      
+          if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
+            ack(1,1:number_size)=0;
+            counter=counter+1;
+            ack(counter, 1:number_size)=frame_number;
+             
+          else
+            final_matrix(i,1:(n-data_begining+1))=data;
+          endif;
+      
+        else
+          if(obj.mode == "crc"),
+        
+            my_crc=transpose(Receiver.get_crc(data));
+            received_crc = received_vector( (number_size + 1) : (data_begining -1));
+            
+            if(!xor(my_crc, received_crc)),  
+              final_matrix(i,1:number_size)=data;
+            else
+              ack(1,1:number_size)=0;
+              counter=counter+1;
+              ack(counter, 1:number_size)=frame_number;   
+
+            endif;
+          endif;
+        endif;
+      
+    endfor;
+    disp(final_matrix);
+    
+    endfunction
+    
     end %koniec metod niestatycznych
     
     methods(Static)
     
-%======= metoda do licznia bitu parzystoÅ›ci =====================
+%======= metoda do licznia bitu parzystoœci =====================
     function p = get_parity(data)
       non_zero_bits= nnz(data);           
       p = mod(non_zero_bits,2);           %0-parzysta liczba jedynek, 1-nieparzysta
