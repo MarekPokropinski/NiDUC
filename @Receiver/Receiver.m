@@ -2,15 +2,14 @@ classdef Receiver < handle
 
    properties (SetAccess = protected)
     packet_size
-    window_size
     mode
+    sr_matrix
    end
    
    methods (Access = public)
     
-    function obj = Receiver(p, w, m)
+    function obj = Receiver(p, m)
       obj.packet_size = p;
-      obj.window_size = w;
       obj.mode = m;
     endfunction     %koniec konstruktora
     
@@ -21,17 +20,17 @@ classdef Receiver < handle
       frame_number = received_vector(1:number_size);
       data = received_vector(data_begining:n);      
       
-      if(obj.mode == "par"),
+      switch obj.mode
+        case "par"
       
-        if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
-          ack=0;                      % ack- odpowiedŸ; jak 1 to ok, jak 0 to Ÿle
-        else
-          ack=1;
-          display(data);
-        endif;
+          if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
+            ack=0;                      % ack- odpowiedŸ; jak 1 to ok, jak 0 to Ÿle
+          else
+            ack=1;
+            display(data);
+          endif;
       
-      else
-        if(obj.mode == "crc"),
+        case "crc"
           
           my_crc=transpose(Receiver.get_crc(data));
           received_crc = received_vector( (number_size + 1) : (data_begining -1));
@@ -42,8 +41,8 @@ classdef Receiver < handle
           else
             ack=0;
           endif;
-        endif;
-      endif;
+          
+       endswitch
  
     endfunction
 
@@ -52,13 +51,14 @@ classdef Receiver < handle
     function ack = gbn(obj, transmited_matrix, number_size, data_begining)
 
       n=obj.packet_size;            
-      for i=1:obj.window_size,    
+      for i=1:rows(transmited_matrix),    
   
         received_vector = transmited_matrix(i, 1:n);
         frame_number = received_vector(1:number_size);
         data = received_vector(data_begining:n);
   
-        if(obj.mode == "par"),
+       switch obj.mode
+        case "par"
       
           if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
             ack=[0, frame_number];  % jak coœ jest nie tak, to wysy³am 0 i numer b³êdnego pakietu
@@ -68,8 +68,7 @@ classdef Receiver < handle
             display(data);
           endif;
       
-        else
-          if(obj.mode == "crc"),
+        case "crc"
         
             my_crc=transpose(Receiver.get_crc(data));
             received_crc = received_vector( (number_size + 1) : (data_begining -1));
@@ -81,8 +80,8 @@ classdef Receiver < handle
               ack=[0, frame_number];    
               break; 
             endif;
-          endif;
-        endif;
+        
+       endswitch;
   
       endfor;
     endfunction
@@ -94,13 +93,14 @@ classdef Receiver < handle
       ack(1)=1;
       n=obj.packet_size;  
       counter=1;                  %zmienna pomocnicza przy tworzeniu ack      
-      for i=1:obj.window_size,    
-  
+    
+      for i=1:rows(transmited_matrix), 
         received_vector = transmited_matrix(i, 1:n);
         frame_number = received_vector(1:number_size);
         data = received_vector(data_begining:n);
   
-        if(obj.mode == "par"),
+        switch obj.mode
+         case "par"
       
           if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
             ack(1,1:number_size)=0;
@@ -108,30 +108,32 @@ classdef Receiver < handle
             ack(counter, 1:number_size)=frame_number;
              
           else
-            final_matrix(i,1:(n-data_begining+1))=data;
+            frame_number=num2str(frame_number);
+            frame_number=bin2dec(frame_number);
+            obj.sr_matrix(frame_number,1:(n-data_begining+1))=data;
           endif;
       
-        else
-          if(obj.mode == "crc"),
+         case "crc"
         
             my_crc=transpose(Receiver.get_crc(data));
             received_crc = received_vector( (number_size + 1) : (data_begining -1));
             
-            if(!xor(my_crc, received_crc)),  
-              final_matrix(i,1:number_size)=data;
+            if(!xor(my_crc, received_crc)),
+              frame_number=num2str(frame_number);
+              frame_number=bin2dec(frame_number);
+              obj.sr_matrix(frame_number,1:(n-data_begining+1))=data;
             else
               ack(1,1:number_size)=0;
               counter=counter+1;
               ack(counter, 1:number_size)=frame_number;   
-
             endif;
-          endif;
-        endif;
-      
-    endfor;
-    disp(final_matrix);
+    
+        endswitch; 
+      endfor;
     
     endfunction
+    
+      
     
     end %koniec metod niestatycznych
     
