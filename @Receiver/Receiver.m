@@ -16,17 +16,16 @@ classdef Receiver < handle
 %============= stop & wait ================
    
     function ack = sw (obj, received_vector, number_size, data_begining) 
-      frame_number = received_vector(1:number_size);
-      data = received_vector(data_begining:obj.packet_size);      
+      
       
       switch obj.mode
         case "par"
-      
-          if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
+          data = received_vector(2:length(received_vector));
+          if(xor(Receiver.get_parity(data), received_vector(1))),  
             ack=0;                      % ack- odpowiedŸ; jak 1 to ok, jak 0 to Ÿle
           else
             ack=1;
-            display(data);
+            %display(data);
           endif;
       
         case "crc"
