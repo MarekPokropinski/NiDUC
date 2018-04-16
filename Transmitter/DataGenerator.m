@@ -1,6 +1,6 @@
 classdef DataGenerator < handle
   properties(SetAccess = protected)
-    self.seed=0;
+    seed=0;
   endproperties
   
   methods
