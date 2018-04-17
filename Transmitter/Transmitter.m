@@ -14,11 +14,13 @@ classdef Transmitter < handle
     function data = sendPacketSW (self,packets,ack)
       if ack==1
         self.curPacket=self.curPacket+1;
-      endif
-      
+      endif      
       data = packets(:,self.curPacket);
     end
     
+    function reset(self)
+      self.curPacket=1;
+    end    
     
     function packets = createPackets(self,data)
       padding = mod(self.packet_size-mod(rows(data),self.packet_size),self.packet_size);

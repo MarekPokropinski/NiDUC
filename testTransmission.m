@@ -3,17 +3,20 @@ clear all;
 addpath("Transmitter");
 addpath("Channel");
 addpath("@Receiver");
+addpath("GUI");
 
-generator = DataGenerator();
+global generator = DataGenerator();
 
 packet_size = 4;
-dataSize = 24;
+global dataSize = 48;
 
-transmitter = Transmitter(packet_size,"xor");
-channel = Channel();
+global transmitter = Transmitter(packet_size,"xor");
+global channel = Channel();
 channel.BSCStatus=1;
-channel.setGilbertGoodProb(0.1);
-receiver = Receiver(packet_size,"par");
+channel.setBSCProb(0);
+
+global receiver = Receiver(packet_size,"par");
+global gui=GUI_NIDUC(transmitter,channel,receiver);
 
 data = generator.getVector(dataSize);
 recvData = [];
@@ -23,14 +26,10 @@ bits = 0;
 packets = transmitter.prepareData(data);
 ack=0;
 i=1;
-
-while bits<dataSize
-  
+%{
+while bits<dataSize  
   o = transmitter.sendPacketSW(packets,ack);
-  %transpose(o)
   o = channel.transmit(o);
-  %transpose(o)
-
   recvData(i,1:length(o))=o;
   ack=receiver.sw(o,length(o)-1,1);
   ackVec(length(ackVec)+1)=ack;
@@ -39,10 +38,10 @@ while bits<dataSize
   end
   i++;
 end
-
-printf("pakiety na wejsciu:\n");
-display(transpose(packets));
-printf("pakiety na wyjsciu:\n");
-display(recvData);
-printf("ack:\n");
-display(transpose(ackVec));
+%}
+%printf("pakiety na wejsciu:\n");
+%display(transpose(packets));
+%printf("pakiety na wyjsciu:\n");
+%display(recvData);
+%printf("ack:\n");
+%display(transpose(ackVec));
