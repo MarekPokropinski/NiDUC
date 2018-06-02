@@ -22,11 +22,14 @@ classdef GUI_NIDUC
       f=figure();
       set(gcf, 'position',[100,100,1000,800]);
       %creat panels
-      global p_Nadajnik = uipanel ("title", "Nadajnik", "position", [.0 0 .35 .95]);
-      global p_Kanal = uipanel ("title", "Kanal", "position", [.35 0 .35 .95]);
-      global p_Odbiornik = uipanel ("title", "Odbiornik", "position", [.70 0 .30 .95]);
-      % create a button group
+      global p_Nadajnik = uipanel ("title", "Opcje", "position", [.0 0 .5 .95]);
+      global p_Kanal = uipanel ("title", "Wynik", "position", [.5 0 .5 .95]);
+      %global p_Odbiornik = uipanel ("title", "Odbiornik", "position", [.70 0 .30 .95]);
+      % create a button group for channel
       gp = uibuttongroup (f, "Position", [ 0 0.95 1 0.2])
+      % create a button group for header type
+      gh= uibuttongroup(f, 'Position',[0 0.65 0.5 0.2])
+      gz= uipanel('title','Zakłócenia','position',[0 0.25 0.5 0.25]);
       % create a buttons in the group
       b1 = uicontrol (gp,"value",1, "style", "radiobutton", ...
                       "string", "Stop-and-wait",'callback',{@callbacks,4}, ...
@@ -37,50 +40,53 @@ classdef GUI_NIDUC
       b3 = uicontrol (gp, "style", "radiobutton", ...
                       "string", "Selective Repeat",'callback',{@callbacks,6}, ...
                       "Position", [ 800 15 150 15 ]);
+      % create a buttons in the header group
+      txt_header=uicontrol('parent',gh,'style','text','position',
+                        [0 110 100 25],'string','Typ nagłówka:');
+      b4=uicontrol(gh,'style','radiobutton','string',
+                     'Bit parzystości','callback',{@callbacks,9},
+                     'position', [20 70 125 25 ]);
+      b5=uicontrol(gh,'style','radiobutton','string',
+                    'CRC','callback',{@callbacks,10},
+                    'position',[20 30 100 15]);
       % create a button not in the group
       txt = uicontrol('parent',p_Nadajnik,'Style','text',...
-              'Position',[20 710 140 20],...
-              'String','Wiadomosc wychodzaca');
-      txt2 = uicontrol('parent',p_Odbiornik,'Style','text',...
-              'Position',[20 710 140 20],...
-              'String','Wiadomosc odebrana',"backgroundcolor",[0.8 0.2 0.3]); %%KOLOR
-      text=uicontrol("parent",p_Odbiornik,"style","text","string","ACK:","position",[200 670 150 20]);
-      %%global checkbox1= uicontrol("parent",p_Kanal,"value",1,"style","checkbox","string", 
-         %%        "BSC probability","position", 
-         %%        [50 600 150 100]); % 75 20 100 1100
-     %% global checkbox2= uicontrol("parent",p_Kanal,"value",0,"style","checkbox","string", 
-       %%          "Zaklocenie 2","position", 
-         %%        [50 450 150 100]);
-     %% checkbox3 =uicontrol("parent",p_Kanal,"style","checkbox","string","Zaklocenie 3",
-      %%           "position",[ 50 300 150 100]);
-    %%  checkbox4 =uicontrol("parent",p_Kanal,"style","checkbox","string","Zaklocenie 4",
-      %%            "position",[50 150 150 100]);
-       gDane =uicontrol("parent",p_Nadajnik,"style","pushbutton","string","generuj Dane","callback",{@callbacks,2},
-                "position",[50 100 100 100]);
+              'Position',[120 710 250 20],...
+              'String','Ustawienia wiadomości wychodzącej');
+      %txt2 = uicontrol('parent',p_Odbiornik,'Style','text',...
+         %     'Position',[20 710 140 20],...
+          %    'String','Wiadomosc odebrana',"backgroundcolor",[0.8 0.2 0.3]); %%KOLOR
+      %text=uicontrol("parent",p_Odbiornik,"style","text","string","ACK:","position",[200 670 150 20]);
+       %gDane =uicontrol("parent",p_Nadajnik,"style","pushbutton","string","generuj Dane","callback",{@callbacks,2},
+             %   "position",[100 50 100 100]);
       symDane =uicontrol("parent",p_Nadajnik,"style","pushbutton","string","Symulacja","callback",{@callbacks,3},
-                  "position",[150 100 100 100]);
-     %% checkbox1_value=get(checkbox1,'value');
-     %% checkbox2_value=get(checkbox2,'value');
+                  "position",[150 50 200 100]);
        %create sliders
-      slider1=uicontrol("parent",p_Kanal ,"Style","slider","min",0,"max",0.9,"value",0,"callback",{@callbacks,0},"Position",[30 600 300 15]); %'callback', {@nazwafucnkji}
-      slider2=uicontrol("parent",p_Kanal,'Style','slider',"min",0,"max",0.9,"value",0,"callback",{@callbacks,1},'Position',[30 450 300 15]);
-      slider3=uicontrol("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.5,"Position",[30 300 300 15]);
-      slider4=uicontrol ("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.7,"Position", [30 150 300 15]);
+      %slider1=uicontrol("parent",p_Kanal ,"Style","slider","min",0,"max",0.9,"value",0,"callback",{@callbacks,0},"Position",[30 600 300 15]); %'callback', {@nazwafucnkji}
+      %slider2=uicontrol("parent",p_Kanal,'Style','slider',"min",0,"max",0.9,"value",0,"callback",{@callbacks,1},'Position',[30 450 300 15]);
+      %slider3=uicontrol("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.5,"Position",[30 300 300 15]);
+      %slider4=uicontrol ("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.7,"Position", [30 150 300 15]);
       %%%OUTPUT NADAJNIK
-      txt_I=uicontrol('parent',p_Nadajnik,'style','text','position',[20 60 100 20],'string','ilosc pakietow:');
-      txt_P=uicontrol('parent',p_Nadajnik,'style','text','position',[20 30 100 20],'string','dlugosc pakietu');
-      txt_ilosc=uicontrol('parent',p_Nadajnik,"style",'edit',"Position", [130 60 50 20],'callback',{@callbacks,7});
-      txt_pakiety=uicontrol('parent',p_Nadajnik,'style','edit','Position',[130 30 50 20],'callback',{@callbacks,8});
+      txt_Ilosc=uicontrol('parent',p_Nadajnik,'style','text','position',[20 460 100 20],'string','ilosc pakietow:');
+      txt_Pakiety=uicontrol('parent',p_Nadajnik,'style','text','position',[20 430 100 20],'string','dlugosc pakietu');
+      p_ilosc=uicontrol('parent',p_Nadajnik,"style",'edit',"Position", [130 460 50 20],'callback',{@callbacks,7});
+      p_pakiety=uicontrol('parent',p_Nadajnik,'style','edit','Position',[130 430 50 20],'callback',{@callbacks,8});
+      %%%POLE Z ZAKLÓCENIAMI
+      txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','BSC good: ');
+      txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','BSC bad: ');
+      txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','Gilbert: ');
+      p_BSC1=uicontrol('parent',gz,'style','edit','position',[120 50 50 20],'callback',{@callbacks,11});
+      p_BSC2=uicontrol('parent',gz,'style','edit','position',[120 100 50 20],'callback',{@callbacks,12});
+      p_Gilbert=uicontrol('parent',gz,'style','edit','position',[120 150 50 20],'callback',{@callbacks,13});
       %%%OUTPUT ODBIORNIK
+      txt_B_error=uicontrol('parent',p_Kanal,'style','text','position',[20 700 100 20],'string','Bit error rate: ');
+      txt_P_error=uicontrol('parent',p_Kanal,'style','text','position',[20 650 120 20],'string','Packet error rate: ');
     end
   end
 end
 
    
   
-
-
-
   
 
 
