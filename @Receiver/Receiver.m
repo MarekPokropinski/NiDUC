@@ -4,6 +4,8 @@ classdef Receiver < handle
     packet_size
     mode
     final_matrix
+    received_data
+    received_pos
    end
    
    methods (Access = public)
@@ -11,77 +13,76 @@ classdef Receiver < handle
     function obj = Receiver(p, m)
       obj.packet_size = p;
       obj.mode = m;
+      obj.received_pos=1;
     endfunction     %koniec konstruktora
+    
+    function ack = verify(obj,data,bracket)
+      if strcmp(obj.mode,'par')
+        ack = ! xor(Receiver.get_parity(data), bracket(1));
+      elseif strcmp(obj.mode,'crc')
+        my_crc=transpose(Receiver.get_crc(data));
+        ack = 1;          
+        for i=1:length(my_crc)
+          if my_crc(i)!=bracket(i)
+            ack=0;
+          end
+        end 
+        
+      end    
+    endfunction
+      
+      
+    function append_data(obj,data)
+      for i=1:length(data)
+        obj.received_data(obj.received_pos)=data(i);
+        obj.received_pos+=1;
+      end
+    endfunction     
     
 %============= stop & wait ================
    
-    function ack = sw (obj, received_vector, number_size, data_begining) 
-      
-      
+    function ack = sw (obj, received_vector)     
+      data=[];
       switch obj.mode
         case "par"
           data = received_vector(2:length(received_vector));
-          if(xor(Receiver.get_parity(data), received_vector(1))),  
-            ack=0;                      % ack- odpowiedŸ; jak 1 to ok, jak 0 to Ÿle
-          else
-            ack=1;
-            %display(data);
-          endif;
-      
-        case "crc"
-          
+          ack = obj.verify(data,received_vector(1:1));
+        case "crc"        
+          data = received_vector(33:length(received_vector));
           my_crc=transpose(Receiver.get_crc(data));
-          received_crc = received_vector( (number_size + 1) : (data_begining -1));
-          
-          if(!xor(my_crc, received_crc)),  
-            ack=1;
-            display(data);                
-          else
-            ack=0;
-          endif;
-          
-       endswitch
- 
+          received_crc = received_vector(1:32);
+          ack = obj.verify(data,received_crc);                 
+       endswitch 
+       if ack
+        obj.append_data(data);
+       endif
     endfunction
 
 %============= go back N ==================
 
-    function ack = gbn(obj, transmited_matrix, number_size, data_begining)
-
-           
-      for i=1:rows(transmited_matrix),    
-  
-        received_vector = transmited_matrix(i, 1:obj.packet_size);
-        frame_number = received_vector(1:number_size);
-        data = received_vector(data_begining:obj.packet_size);
+    function ack = gbn(obj, transmited_matrix, number_size)
+      
+      #transmited_matrix = transpose(transmited_matrix);
+      line_length = columns(transmited_matrix);
+      bracket_size = line_length-obj.packet_size;
+      
+      for i=1:rows(transmited_matrix)  
+        received_vector = transmited_matrix(i, :);
+        frame_number = received_vector(bracket_size-number_size+1:bracket_size);
+        data = received_vector(bracket_size+1:line_length);
   
        switch obj.mode
         case "par"
-      
-          if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
-            ack=[0, frame_number];  % jak coœ jest nie tak, to wysy³am 0 i numer b³êdnego pakietu
-            break;                  % wychodzê z pêtli, bo ju¿ nie bêdê pobieraæ kolejnych pakietów
+          ack1 = obj.verify(received_vector(2:line_length),received_vector(1:1));      
+          if(ack1==0),  
+            ack={0, frame_number};  % jak coï¿½ jest nie tak, to wysyï¿½am 0 i numer bï¿½ï¿½dnego pakietu
+            break;                  % wychodzï¿½ z pï¿½tli, bo juï¿½ nie bï¿½dï¿½ pobieraï¿½ kolejnych pakietï¿½w
           else
-            ack=1;
-            frame_number=num2str(frame_number);
-            frame_number=bin2dec(frame_number);
-            obj.final_matrix(frame_number,1:(obj.packet_size-data_begining+1))=data;
-          endif;
-      
-        case "crc"
-        
-            my_crc=transpose(Receiver.get_crc(data));
-            received_crc = received_vector( (number_size + 1) : (data_begining -1));
+            ack={1,[0,0,0,0]};
+            obj.append_data(data);
+          endif;      
+        case "crc"        
             
-            if(!xor(my_crc, received_crc)),  
-              ack=1;
-              frame_number=num2str(frame_number);
-              frame_number=bin2dec(frame_number);
-              obj.final_matrix(frame_number,1:(obj.packet_size-data_begining+1))=data;
-            else
-              ack=[0, frame_number];    
-              break; 
-            endif;
         
        endswitch;
   
@@ -141,7 +142,7 @@ classdef Receiver < handle
     
     methods(Static)
     
-%======= metoda do licznia bitu parzystoœci =====================
+%======= metoda do licznia bitu parzystoï¿½ci =====================
     function p = get_parity(data)
       non_zero_bits= nnz(data);           
       p = mod(non_zero_bits,2);           %0-parzysta liczba jedynek, 1-nieparzysta
@@ -149,7 +150,7 @@ classdef Receiver < handle
    
 %======= metoda do liczenia CRC32 =============== 
     function p = get_crc(data)
-      data = transpose(data);
+      %data = transpose(data);
       a = transpose([1,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0,1,0,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1]);  
       d = cat(1,data,zeros(length(a)-1,1));  
       len = length(data);

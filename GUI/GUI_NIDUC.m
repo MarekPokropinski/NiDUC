@@ -72,12 +72,12 @@ classdef GUI_NIDUC
       p_ilosc=uicontrol('parent',p_Nadajnik,"style",'edit',"Position", [130 460 50 20],'callback',{@callbacks,7});
       p_pakiety=uicontrol('parent',p_Nadajnik,'style','edit','Position',[130 430 50 20],'callback',{@callbacks,8});
       %%%POLE Z ZAKLÓCENIAMI
-      txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','BSC good: ');
-      txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','BSC bad: ');
-      txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','Gilbert: ');
-      p_BSC1=uicontrol('parent',gz,'style','edit','position',[120 50 50 20],'callback',{@callbacks,11});
-      p_BSC2=uicontrol('parent',gz,'style','edit','position',[120 100 50 20],'callback',{@callbacks,12});
-      p_Gilbert=uicontrol('parent',gz,'style','edit','position',[120 150 50 20],'callback',{@callbacks,13});
+      txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','Gilbert good: ');
+      txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','Gilbert bad: ');
+      txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','BSC: ');
+      p_BSC=uicontrol('parent',gz,'style','edit','position',[120 50 50 20],'callback',{@callbacks,11});
+      p_Gilbert1=uicontrol('parent',gz,'style','edit','position',[120 100 50 20],'callback',{@callbacks,12});
+      p_Gilbert2=uicontrol('parent',gz,'style','edit','position',[120 150 50 20],'callback',{@callbacks,13});
       %%%OUTPUT ODBIORNIK
       txt_B_error=uicontrol('parent',p_Kanal,'style','text','position',[20 700 100 20],'string','Bit error rate: ');
       txt_P_error=uicontrol('parent',p_Kanal,'style','text','position',[20 650 120 20],'string','Packet error rate: ');

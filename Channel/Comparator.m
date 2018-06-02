@@ -28,8 +28,11 @@ classdef Comparator < handle
       self.badBitsNum = 0;
       self.badPacketsNum = 0;
       
-      self.packetsNum = length(sent);
-      self.packetLen = length(sent(1,:));
+      self.packetsNum = rows(sent);
+      self.packetLen = columns(sent);
+      
+      disp(self.packetsNum);
+      disp(self.packetLen);
       self.bitsNum = self.packetsNum * self.packetLen;
       
       packetGood = true;
