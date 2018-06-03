@@ -29,7 +29,7 @@ classdef GUI_NIDUC
       gp = uibuttongroup (f, "Position", [ 0 0.95 1 0.2])
       % create a button group for header type
       gh= uibuttongroup(f, 'Position',[0 0.65 0.5 0.2])
-      gz= uipanel('title','Zaklucenia','position',[0 0.25 0.5 0.25]);
+      gz= uipanel('title','Zaklocenia','position',[0 0.25 0.5 0.25]);
       % create a buttons in the group
       b1 = uicontrol (gp,"value",1, "style", "radiobutton", ...
                       "string", "Stop-and-wait",'callback',{@callbacks,4}, ...
@@ -71,7 +71,7 @@ classdef GUI_NIDUC
       txt_Pakiety=uicontrol('parent',p_Nadajnik,'style','text','position',[20 430 100 20],'string','dlugosc pakietu');
       p_ilosc=uicontrol('parent',p_Nadajnik,"style",'edit',"Position", [130 460 50 20],'callback',{@callbacks,7});
       p_pakiety=uicontrol('parent',p_Nadajnik,'style','edit','Position',[130 430 50 20],'callback',{@callbacks,8});
-      %%%POLE Z ZAKLÓCENIAMI
+      %%%POLE Z ZAKLĂ“CENIAMI
       txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','Gilbert good: ');
       txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','Gilbert bad: ');
       txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','BSC: ');
@@ -81,6 +81,10 @@ classdef GUI_NIDUC
       %%%OUTPUT ODBIORNIK
       txt_B_error=uicontrol('parent',p_Kanal,'style','text','position',[20 700 100 20],'string','Bit error rate: ');
       txt_P_error=uicontrol('parent',p_Kanal,'style','text','position',[20 650 120 20],'string','Packet error rate: ');
+      txt_Bits_trans=uicontrol('parent',p_Kanal,'style','text','position',[20 600 120 20],'string','Bits transmitteed: ');
+      global txt99=uicontrol('parent',p_Kanal,'style','text','position',[140 700 100 20]);
+      global txt98=uicontrol('parent',p_Kanal,'style','text','position',[140 650 100 20]);
+      global txt97=uicontrol('parent',p_Kanal,'style','text','position',[140 600 100 20]);
     end
   end
 end
