@@ -2,74 +2,81 @@ function callbacks(h,event,arg)
   global generator;
   global transmitter;
   global data;
-  global dataSize=48;  
+  global dataSize;  
   global channel;
   global receiver;
   global p_Odbiornik;
   global p_Kanal;
   global p_Nadajnik;
   
+  global mode;
+  global chsum;
+  global dataSize_str;
+  global packetSize;
+  
+  global bsc_prob;
+  global gilbert_good;
+  global gilbert_bad;
+  
   try  
-    if arg == 0
-      val = get(h,"value");
-      txt3=uicontrol("parent",p_Kanal,"style","text","position",[220 640 150 20]);
-      set(txt3,"string",num2str(val));
-      channel.setBSCProb(val);
-    end
-    if arg == 1
-      val = get(h,"value");
-      txt3=uicontrol("parent",p_Kanal,"style","text","position",[220 490 150 20]);
-      set(txt3,"string",num2str(val));      
-    end
-    if arg == 2      
-      data = generator.getVector(dataSize);
-      pack = transpose(transmitter.prepareData(data));
-      i=1;
-      while i<=dataSize/transmitter.packet_size
-          output_text=uicontrol("parent",p_Nadajnik,"style","text","position",[100 650-20*i 150 20]);
-          set(output_text,"String",mat2str(pack(i,:)));
-          i++;
-      endwhile
-    end
-    if arg == 3
+    switch arg
+      case 3 # start button
+        disp('Start!');
+        
+        con = Controller();
+        
+        disp(mode)
+        disp(packetSize)
+        disp(dataSize_str)
+        disp(chsum)
+        fflush(stdout)
+        
+        packet_size = str2num(packetSize);    
+        disp(packet_size);
+        transmitter = Transmitter(packet_size,chsum);
+        receiver = Receiver(packet_size,chsum);
+        
+        dataSize = str2num(dataSize_str);
+        channel.setBSCProb(str2double(bsc_prob));
+        channel.setGilbertGoodProb(str2double(gilbert_good));
+        channel.setGilbertBadProb(str2double(gilbert_bad));     
+        
+        disp 'bsc:'
+        disp(str2double(bsc_prob))
+        disp 'gilbert good:'
+        disp(str2double(gilbert_good))
+        disp 'gilbert bad:'
+        disp(str2double(gilbert_bad))
+        
+        fflush(stdout)
+        
+        con.send(mode);
+        disp('finished sending data');
       
-      transmitter.reset();
       
-      recvData = [];
-      ackVec=[];
-      bits = 0;
-
-      packets = transmitter.prepareData(data);
-      ack=0;
-      i=1;
-      while bits<dataSize  
-        o = transmitter.sendPacketSW(packets,ack);
-        o = channel.transmit(o);
-        recvData(i,1:length(o))=o;
-        ack=receiver.sw(o,length(o)-1,1);
-        ackVec(length(ackVec)+1)=ack;
-        if ack==1
-          bits+=transmitter.packet_size;
-        end
-        i++;
-      end
-
-      i=1;
-      while i<=size(recvData,1)
-        output_text=uicontrol("parent",p_Odbiornik,"style","text","position",[50 650-20*i 100 20]);
-        output_text2=uicontrol("parent",p_Odbiornik,"style","text","position",[200 650-20*i 150 20]);
-        set(output_text,"String",mat2str(recvData(i,:)));
-        set(output_text2,"String",num2str(ackVec(i)));
-        i++;
-      endwhile
-      while i < 50
-        output_text=uicontrol("parent",p_Odbiornik,"style","text","position",[50 650-20*i 100 20]);
-        output_text2=uicontrol("parent",p_Odbiornik,"style","text","position",[200 650-20*i 150 20]);
-        set(output_text,"String"," ");
-        set(output_text2,"String"," ");
-        i++;
-      end
-    end
+      case 4 # sw
+        mode = 'sw';      
+      case 5 # gbn
+        mode = 'gbn';      
+      case 6 # sr
+        mode = 'sr';
+      case 7
+        dataSize_str = get(h,'string');
+      case 8
+        packetSize = get(h,'string');
+      case 9
+        chsum= 'par';
+      case 10
+        chsum = 'crc';
+      case 11
+        bsc_prob = get(h,'string');
+      case 12
+        gilbert_good = get(h,'string');
+      case 13
+        gilbert_bad = get(h,'string');      
+      
+    endswitch
+  
   catch exception
   
   end

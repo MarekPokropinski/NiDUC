@@ -25,7 +25,9 @@ classdef GEChannel < handle
         self.updateState();
         
         if self.curState == 1
-          self.flipInputBit(i);
+          if rand()<0.5 
+            self.flipInputBit(i);
+          end
         end
       end
       

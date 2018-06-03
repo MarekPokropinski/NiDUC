@@ -29,7 +29,7 @@ classdef GUI_NIDUC
       gp = uibuttongroup (f, "Position", [ 0 0.95 1 0.2])
       % create a button group for header type
       gh= uibuttongroup(f, 'Position',[0 0.65 0.5 0.2])
-      gz= uipanel('title','Zakłócenia','position',[0 0.25 0.5 0.25]);
+      gz= uipanel('title','Zaklucenia','position',[0 0.25 0.5 0.25]);
       % create a buttons in the group
       b1 = uicontrol (gp,"value",1, "style", "radiobutton", ...
                       "string", "Stop-and-wait",'callback',{@callbacks,4}, ...
@@ -42,9 +42,9 @@ classdef GUI_NIDUC
                       "Position", [ 800 15 150 15 ]);
       % create a buttons in the header group
       txt_header=uicontrol('parent',gh,'style','text','position',
-                        [0 110 100 25],'string','Typ nagłówka:');
+                        [0 110 100 25],'string','Typ naglowka:');
       b4=uicontrol(gh,'style','radiobutton','string',
-                     'Bit parzystości','callback',{@callbacks,9},
+                     'Bit parzystosci','callback',{@callbacks,9},
                      'position', [20 70 125 25 ]);
       b5=uicontrol(gh,'style','radiobutton','string',
                     'CRC','callback',{@callbacks,10},
@@ -52,7 +52,7 @@ classdef GUI_NIDUC
       % create a button not in the group
       txt = uicontrol('parent',p_Nadajnik,'Style','text',...
               'Position',[120 710 250 20],...
-              'String','Ustawienia wiadomości wychodzącej');
+              'String','Ustawienia wiadomosci wychodzacej');
       %txt2 = uicontrol('parent',p_Odbiornik,'Style','text',...
          %     'Position',[20 710 140 20],...
           %    'String','Wiadomosc odebrana',"backgroundcolor",[0.8 0.2 0.3]); %%KOLOR
@@ -67,17 +67,17 @@ classdef GUI_NIDUC
       %slider3=uicontrol("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.5,"Position",[30 300 300 15]);
       %slider4=uicontrol ("parent",p_Kanal,"Style","slider","min",0,"max",0.9,"value",0.7,"Position", [30 150 300 15]);
       %%%OUTPUT NADAJNIK
-      txt_Ilosc=uicontrol('parent',p_Nadajnik,'style','text','position',[20 460 100 20],'string','ilosc pakietow:');
+      txt_Ilosc=uicontrol('parent',p_Nadajnik,'style','text','position',[20 460 100 20],'string','ilosc bitow:');
       txt_Pakiety=uicontrol('parent',p_Nadajnik,'style','text','position',[20 430 100 20],'string','dlugosc pakietu');
       p_ilosc=uicontrol('parent',p_Nadajnik,"style",'edit',"Position", [130 460 50 20],'callback',{@callbacks,7});
       p_pakiety=uicontrol('parent',p_Nadajnik,'style','edit','Position',[130 430 50 20],'callback',{@callbacks,8});
       %%%POLE Z ZAKLÓCENIAMI
-      txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','BSC good: ');
-      txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','BSC bad: ');
-      txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','Gilbert: ');
-      p_BSC1=uicontrol('parent',gz,'style','edit','position',[120 50 50 20],'callback',{@callbacks,11});
-      p_BSC2=uicontrol('parent',gz,'style','edit','position',[120 100 50 20],'callback',{@callbacks,12});
-      p_Gilbert=uicontrol('parent',gz,'style','edit','position',[120 150 50 20],'callback',{@callbacks,13});
+      txt_BSC1=uicontrol('parent',gz,'style','text','position',[20 50 100 20],'string','Gilbert good: ');
+      txt_BSC2=uicontrol('parent',gz,'style','text','position',[20 100 100 20],'string','Gilbert bad: ');
+      txt_Gilbert=uicontrol('parent',gz,'style','text','position',[20 150 100 20],'string','BSC: ');
+      p_BSC=uicontrol('parent',gz,'style','edit','position',[120 50 50 20],'callback',{@callbacks,12});
+      p_Gilbert1=uicontrol('parent',gz,'style','edit','position',[120 100 50 20],'callback',{@callbacks,13});
+      p_Gilbert2=uicontrol('parent',gz,'style','edit','position',[120 150 50 20],'callback',{@callbacks,11});
       %%%OUTPUT ODBIORNIK
       txt_B_error=uicontrol('parent',p_Kanal,'style','text','position',[20 700 100 20],'string','Bit error rate: ');
       txt_P_error=uicontrol('parent',p_Kanal,'style','text','position',[20 650 120 20],'string','Packet error rate: ');
