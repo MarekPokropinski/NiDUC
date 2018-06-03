@@ -41,6 +41,13 @@ function callbacks(h,event,arg)
         channel.setGilbertGoodProb(str2double(gilbert_good));
         channel.setGilbertBadProb(str2double(gilbert_bad));     
         
+        disp 'bsc:'
+        disp(str2double(bsc_prob))
+        disp 'gilbert good:'
+        disp(str2double(gilbert_good))
+        disp 'gilbert bad:'
+        disp(str2double(gilbert_bad))
+        
         fflush(stdout)
         
         con.send(mode);

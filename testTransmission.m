@@ -6,7 +6,7 @@ addpath("@Receiver");
 addpath("GUI");
 addpath("Controller");
 
-mode = 'par';
+
 
 global mode = 'sw';
 global chsum='par';
@@ -20,16 +20,17 @@ global gilbert_bad='0';
 
 global generator = DataGenerator();
 
-packet_size = 4;
-global dataSize = 20;
+global packet_size = 20;
+global dataSize = 2000;
 
 global transmitter = Transmitter(packet_size,mode);
 global channel = Channel();
 channel.BSCStatus=1;
-channel.gilbertStatus=1;
+channel.gilbertStatus=0;
+channel.setBSCProb(0.1);
 
-global receiver = Receiver(packet_size,mode);
+global receiver = Receiver(packet_size,chsum);
 global gui=GUI_NIDUC(transmitter,channel,receiver);
 
-c = Controller();
+#c = Controller();
 #c.send(mode);

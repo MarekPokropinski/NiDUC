@@ -43,14 +43,14 @@ classdef Controller
       elseif strcmp(mode,'gbn')
         ack={0,[0,0,0,0]};
         while 1
-          o = transmitter.sendPacketsGBN(packets,2,ack);
+          o = transmitter.sendPacketsGBN(packets,16,ack);
           if length(o)==0
             break
           end        
           o = channel.transmit(o);
           ack=receiver.gbn(o,4);  
           i++;
-          if i>10000
+          if i>1000000
             disp('timeout!');
             break;
           end
@@ -61,16 +61,23 @@ classdef Controller
       data = transpose(reshape(data,transmitter.packet_size,[]));
       rdata = transpose(reshape(receiver.received_data,transmitter.packet_size,[]));
       
+      #data(1:3,:)
+      #rdata(1:3,:)
+      
       com = Comparator();
       com.compare(data,rdata);
       
       self.BER = com.BER;
       self.PER = com.PER;
       
+      disp('---------');
       disp('ber:')
       disp(com.BER)
       disp 'per:'
       disp(com.PER)
+      disp('bits transmitted:')
+      disp(receiver.received_bits_total);
+      disp('---------');
     endfunction
 
     function data = generate(self)

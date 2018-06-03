@@ -6,6 +6,8 @@ classdef Receiver < handle
     final_matrix
     received_data
     received_pos
+    
+    received_bits_total
    end
    
    methods (Access = public)
@@ -14,6 +16,7 @@ classdef Receiver < handle
       obj.packet_size = p;
       obj.mode = m;
       obj.received_pos=1;
+      obj.received_bits_total=0;
     endfunction     %koniec konstruktora
     
     function ack = verify(obj,data,bracket)
@@ -43,6 +46,7 @@ classdef Receiver < handle
    
     function ack = sw (obj, received_vector)     
       data=[];
+      obj.received_bits_total += length(received_vector);
       switch obj.mode
         case "par"
           data = received_vector(2:length(received_vector));
@@ -61,7 +65,7 @@ classdef Receiver < handle
 %============= go back N ==================
 
     function ack = gbn(obj, transmited_matrix, number_size)
-      
+      obj.received_bits_total+=columns(transmited_matrix)*rows(transmited_matrix);
       #transmited_matrix = transpose(transmited_matrix);
       line_length = columns(transmited_matrix);
       bracket_size = line_length-obj.packet_size;
@@ -75,17 +79,22 @@ classdef Receiver < handle
         case "par"
           ack1 = obj.verify(received_vector(2:line_length),received_vector(1:1));      
           if(ack1==0),  
-            ack={0, frame_number};  % jak co� jest nie tak, to wysy�am 0 i numer b��dnego pakietu
+            ack={0, Transmitter.num_to_bin(i-1,4)};  % jak co� jest nie tak, to wysy�am 0 i numer b��dnego pakietu
             break;                  % wychodz� z p�tli, bo ju� nie b�d� pobiera� kolejnych pakiet�w
           else
             ack={1,[0,0,0,0]};
             obj.append_data(data);
           endif;      
         case "crc"        
-            
-        
-       endswitch;
-  
+          ack1 = obj.verify(received_vector(33+number_size:length(received_vector)),received_vector(1:32)); 
+          if(ack1==0),  
+            ack={0, Transmitter.num_to_bin(i-1,4)};  % jak co� jest nie tak, to wysy�am 0 i numer b��dnego pakietu
+            break;                  % wychodz� z p�tli, bo ju� nie b�d� pobiera� kolejnych pakiet�w
+          else
+            ack={1,[0,0,0,0]};
+            obj.append_data(data);
+          endif;    
+       endswitch;  
       endfor;
     endfunction
     
