@@ -70,14 +70,19 @@ classdef Controller
       self.BER = com.BER;
       self.PER = com.PER;
       
-      disp('---------');
-      disp('ber:')
+      disp('---------'); 
       disp(com.BER)
       disp 'per:'
       disp(com.PER)
       disp('bits transmitted:')
       disp(receiver.received_bits_total);
       disp('---------');
+      global txt99;
+      set(txt99,"string",num2str(com.BER));
+      global txt98;
+      set(txt98,"string",num2str(com.PER));
+      global txt97;
+      set(txt97,"string",num2str(receiver.received_bits_total));
     endfunction
 
     function data = generate(self)
@@ -90,4 +95,5 @@ classdef Controller
 end
 
   
+    
     
