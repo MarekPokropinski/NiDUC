@@ -86,7 +86,7 @@ classdef Receiver < handle
             obj.append_data(data);
           endif;      
         case "crc"        
-          ack1 = obj.verify(received_vector(33+number_size:length(received_vector)),received_vector(1:32)); 
+          ack1 = obj.verify(transpose(received_vector(33:length(received_vector))),received_vector(1:32)); 
           if(ack1==0),  
             ack={0, Transmitter.num_to_bin(i-1,4)};  % jak co� jest nie tak, to wysy�am 0 i numer b��dnego pakietu
             break;                  % wychodz� z p�tli, bo ju� nie b�d� pobiera� kolejnych pakiet�w
