@@ -46,7 +46,7 @@ classdef Transmitter < handle
     end
     
     function data = sendPacketsSR(self,packets,window_size,ack)      
-      if length(ack)>0 && ack(1)==-1
+      if length(ack)>0 && ack(1)==-1 # Poczatek sesji przesylania
         ack=[];
         self.curPacket=1-window_size;
       end
@@ -66,7 +66,7 @@ classdef Transmitter < handle
           data(i,1:4)=Transmitter.num_to_bin(i-1,4);
         end
         data=transpose(self.createBracket(transpose(data)));
-      else
+      else # Retransmisja
         for i=1:length(ack)
           if self.curPacket+ack(i)<=columns(packets)
             data(i,:)=transpose(packets(:,self.curPacket+ack(i)));          
@@ -75,8 +75,8 @@ classdef Transmitter < handle
           end          
         end
         data = cat(2,zeros(rows(data),4),data);
-        for i=1:window_size
-          data(i,1:4)=Transmitter.num_to_bin(i-1,4);
+        for i=1:length(ack)
+          data(i,1:4)=Transmitter.num_to_bin(ack(i),4);
         end
         data=transpose(self.createBracket(transpose(data)));
       end
