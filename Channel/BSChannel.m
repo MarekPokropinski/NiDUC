@@ -17,7 +17,8 @@ classdef BSChannel < handle
     function o = transmit(self, input)
       self.curInput = input;
       
-      for i = 1 : length(self.curInput)
+      #for i = 1 : length(self.curInput)
+      for i = 1 : numel(self.curInput)
         if rand() < self.BSCProb
           self.flipInputBit(i);
         end

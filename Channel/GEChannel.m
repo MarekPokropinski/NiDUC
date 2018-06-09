@@ -21,7 +21,7 @@ classdef GEChannel < handle
     function o = transmit(self, input)
       self.curInput = input;
       
-      for i = 1 : length(self.curInput)
+      for i = 1 : numel(self.curInput)
         self.updateState();
         
         if self.curState == 1
