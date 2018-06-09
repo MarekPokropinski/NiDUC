@@ -8,6 +8,9 @@ classdef Receiver < handle
     received_pos
     
     received_bits_total
+    
+    sr_buf_start
+    sr_buf_completion
    end
    
    methods (Access = public)
@@ -17,6 +20,8 @@ classdef Receiver < handle
       obj.mode = m;
       obj.received_pos=1;
       obj.received_bits_total=0;
+      obj.sr_buf_start=1;
+      obj.sr_buf_completion=0;
     endfunction     %koniec konstruktora
     
     function ack = verify(obj,data,bracket)
@@ -71,9 +76,9 @@ classdef Receiver < handle
       bracket_size = line_length-obj.packet_size;
       
       for i=1:rows(transmited_matrix)  
-        received_vector = transmited_matrix(i, :);
-        frame_number = received_vector(bracket_size-number_size+1:bracket_size);
-        data = received_vector(bracket_size+1:line_length);
+       received_vector = transmited_matrix(i, :);
+       frame_number = received_vector(bracket_size-number_size+1:bracket_size);
+       data = received_vector(bracket_size+1:line_length);
   
        switch obj.mode
         case "par"
@@ -100,49 +105,47 @@ classdef Receiver < handle
     
     %============= selective repeat ==================
 
-    function ack = sr(obj, transmited_matrix, number_size, data_begining)
-
-      ack(1)=1;
-      n=obj.packet_size;  
-      counter=1;                  %zmienna pomocnicza przy tworzeniu ack      
+    function ack = sr(obj, transmited_matrix, number_size,window_size)
+      ack = [];
+      obj.received_bits_total+=columns(transmited_matrix)*rows(transmited_matrix);
+      line_length = columns(transmited_matrix);
+      bracket_size = line_length-obj.packet_size;
+      
+      for i=1:rows(transmited_matrix)
+         if obj.sr_buf_completion==window_size
+           obj.sr_buf_completion=0;
+           obj.sr_buf_start+=window_size*obj.packet_size;
+         end
+           
+         received_vector = transmited_matrix(i, :);
+         frame_number = received_vector(bracket_size-number_size+1:bracket_size);
+         data = received_vector(bracket_size+1:line_length);
     
-      for i=1:rows(transmited_matrix), 
-        received_vector = transmited_matrix(i, 1:n);
-        frame_number = received_vector(1:number_size);
-        data = received_vector(data_begining:n);
-  
-        switch obj.mode
-         case "par"
-      
-          if(xor(Receiver.get_parity(data), received_vector(number_size + 1))),  
-            ack(1,1:number_size)=0;
-            counter=counter+1;
-            ack(counter, 1:number_size)=frame_number;
-             
-          else
-            frame_number=num2str(frame_number);
-            frame_number=bin2dec(frame_number);
-            obj.final_matrix(frame_number,1:(n-data_begining+1))=data;
-          endif;
-      
-         case "crc"
-        
-            my_crc=transpose(Receiver.get_crc(data));
-            received_crc = received_vector( (number_size + 1) : (data_begining -1));
-            
-            if(!xor(my_crc, received_crc)),
-              frame_number=num2str(frame_number);
-              frame_number=bin2dec(frame_number);
-              obj.final_matrix(frame_number,1:(n-data_begining+1))=data;
+         switch obj.mode
+          case "par"
+            ack1 = obj.verify(received_vector(2:line_length),received_vector(1:1));      
+            if(ack1==0),  
+              ack=[ack,i-1];               
             else
-              ack(1,1:number_size)=0;
-              counter=counter+1;
-              ack(counter, 1:number_size)=frame_number;   
-            endif;
-    
-        endswitch; 
+              seq = cast(Transmitter.bin_to_num(frame_number),"uint32");
+              for i=1:length(data)
+                obj.received_data(i+obj.sr_buf_start+seq*obj.packet_size-1)=data(i);
+              end
+              obj.sr_buf_completion+=1;
+            endif;      
+          case "crc"        
+            ack1 = obj.verify(transpose(received_vector(33:length(received_vector))),received_vector(1:32)); 
+            if(ack1==0),  
+              ack=[ack,i-1];               
+            else
+              seq = cast(Transmitter.bin_to_num(frame_number),"uint32");
+              for i=1:length(data)
+                obj.received_data(i+obj.sr_buf_start+seq*obj.packet_size-1)=data(i);
+              end
+              obj.sr_buf_completion+=1;
+            endif;      
+         endswitch;  
       endfor;
-    
     endfunction
     
       

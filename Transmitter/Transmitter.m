@@ -45,9 +45,48 @@ classdef Transmitter < handle
       data=transpose(self.createBracket(transpose(data)));
     end
     
+    function data = sendPacketsSR(self,packets,window_size,ack)      
+      if length(ack)>0 && ack(1)==-1
+        ack=[];
+        self.curPacket=1-window_size;
+      end
+      if length(ack)==0
+        self.curPacket+=window_size;
+        if self.curPacket>columns(packets)
+          data = [];
+          return;
+        end
+        last_pack = self.curPacket+window_size-1;
+        if last_pack>columns(packets)
+          last_pack=columns(packets);
+        endif
+        data = transpose(packets(:,self.curPacket:last_pack));
+        data = cat(2,zeros(rows(data),4),data);
+        for i=1:window_size
+          data(i,1:4)=Transmitter.num_to_bin(i-1,4);
+        end
+        data=transpose(self.createBracket(transpose(data)));
+      else
+        for i=1:length(ack)
+          if self.curPacket+ack(i)<=columns(packets)
+            data(i,:)=transpose(packets(:,self.curPacket+ack(i)));          
+          else
+            data(i,:)=zeros(1,self.packet_size);
+          end          
+        end
+        data = cat(2,zeros(rows(data),4),data);
+        for i=1:window_size
+          data(i,1:4)=Transmitter.num_to_bin(i-1,4);
+        end
+        data=transpose(self.createBracket(transpose(data)));
+      end
+    end
+    
+    
     function reset(self)
       self.curPacket=1;
     end    
+    
     
     function packets = createPackets(self,data)
       padding = mod(self.packet_size-mod(rows(data),self.packet_size),self.packet_size);

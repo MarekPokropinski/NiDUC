@@ -55,10 +55,25 @@ classdef Controller
             break;
           end
         end
-      #elseif strcmp(mode,'sn')
+      elseif strcmp(mode,'sr')
+        ack = [-1];
+        while 1
+          o = transmitter.sendPacketsSR(packets,16,ack);
+          if length(o)==0
+            break
+          end      
+          o = channel.transmit(o);
+          ack=receiver.sr(o,4,16); 
+          i++;
+          if i>1000000
+            disp('timeout!');
+            break;
+          end
+        end
       end
         
-      data = transpose(reshape(data,transmitter.packet_size,[]));
+      #data = transpose(reshape(data,transmitter.packet_size,[]));
+      data = transpose(packets);
       rdata = transpose(reshape(receiver.received_data,transmitter.packet_size,[]));
       
       #data(1:3,:)

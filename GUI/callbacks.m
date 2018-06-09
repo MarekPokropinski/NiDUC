@@ -18,69 +18,64 @@ function callbacks(h,event,arg)
   global gilbert_good;
   global gilbert_bad;
   
-  try  
-    switch arg
-      case 3 # start button
-        disp('Start!');
-        
-        con = Controller();
-        
-        disp(mode)
-        disp(packetSize)
-        disp(dataSize_str)
-        disp(chsum)
-        fflush(stdout)
-        
-        packet_size = str2num(packetSize);    
-        disp(packet_size);
-        transmitter = Transmitter(packet_size,chsum);
-        receiver = Receiver(packet_size,chsum);
-        
-        dataSize = str2num(dataSize_str);
-        channel.setBSCProb(str2double(bsc_prob));
-        channel.setGilbertGoodProb(str2double(gilbert_good));
-        channel.setGilbertBadProb(str2double(gilbert_bad));     
-        
-        disp 'bsc:'
-        disp(str2double(bsc_prob))
-        disp 'gilbert good:'
-        disp(str2double(gilbert_good))
-        disp 'gilbert bad:'
-        disp(str2double(gilbert_bad))
-        
-        fflush(stdout)
-        
-        con.send(mode);
-        disp('finished sending data');
+    
+  switch arg
+    case 3 # start button
+      disp('Start!');
       
+      con = Controller();
       
-      case 4 # sw
-        mode = 'sw';      
-      case 5 # gbn
-        mode = 'gbn';      
-      case 6 # sr
-        mode = 'sr';
-      case 7
-        dataSize_str = get(h,'string');
-      case 8
-        packetSize = get(h,'string');
-      case 9
-        chsum= 'par';
-      case 10
-        chsum = 'crc';
-      case 11
-        bsc_prob = get(h,'string');
-      case 12
-        gilbert_good = get(h,'string');
-      case 13
-        gilbert_bad = get(h,'string');      
+      disp(mode)
+      disp(packetSize)
+      disp(dataSize_str)
+      disp(chsum)
+      fflush(stdout)
       
-    endswitch
-  
-  catch exception
-  
-  end
-
+      packet_size = str2num(packetSize);    
+      disp(packet_size);
+      transmitter = Transmitter(packet_size,chsum);
+      receiver = Receiver(packet_size,chsum);
+      
+      dataSize = str2num(dataSize_str);
+      channel.setBSCProb(str2double(bsc_prob));
+      channel.setGilbertGoodProb(str2double(gilbert_good));
+      channel.setGilbertBadProb(str2double(gilbert_bad));     
+      
+      disp 'bsc:'
+      disp(str2double(bsc_prob))
+      disp 'gilbert good:'
+      disp(str2double(gilbert_good))
+      disp 'gilbert bad:'
+      disp(str2double(gilbert_bad))
+      
+      fflush(stdout)
+      
+      con.send(mode);
+      disp('finished sending data');
+    
+    
+    case 4 # sw
+      mode = 'sw';      
+    case 5 # gbn
+      mode = 'gbn';      
+    case 6 # sr
+      mode = 'sr';
+    case 7
+      dataSize_str = get(h,'string');
+    case 8
+      packetSize = get(h,'string');
+    case 9
+      chsum= 'par';
+    case 10
+      chsum = 'crc';
+    case 11
+      bsc_prob = get(h,'string');
+    case 12
+      gilbert_good = get(h,'string');
+    case 13
+      gilbert_bad = get(h,'string');      
+    
+  endswitch
 
 endfunction
 
